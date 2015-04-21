@@ -53,4 +53,4 @@ test = dbContainer()
 #test.gather_excel("good.csv")
 
 #print(test.get_all())
-test.clean("@kwefgf going to cinda's sooonnnnnnn")
+test.clean("@kwefgf going to cinda's sooonnnnnnn123")
