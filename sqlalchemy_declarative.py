@@ -13,7 +13,9 @@ class Status(Base):
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    status = Column(String(280))
+    status_original = Column(String(280))
+    status_stemmed = Column(String(280))
+    status_no_common = Column(String(280))
     rank = Column(Integer, nullable=False)
 
 

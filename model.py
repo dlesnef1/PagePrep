@@ -1,3 +1,6 @@
+#then write methods to actually fill those columns
+#naive bayes, onward
+
 __author__ = 'Mariah and David'
 
 
@@ -18,7 +21,7 @@ class dbContainer:
         if (new_status == "" or new_rank>2 or new_rank<-2):
             return
 
-        new_status = Status(status=new_status, rank=new_rank)
+        new_status = Status(status_original=new_status, rank=new_rank)
         self.session.add(new_status)
         self.session.commit()
 
@@ -26,9 +29,30 @@ class dbContainer:
         all = self.session.query(Status).all()
         statuses = {}
         for aStatus in all:
-            statuses[aStatus.status] = aStatus.rank
-
+            statuses[aStatus.status_original] = aStatus.rank
         return statuses
+
+    def update_stemmed(self,stemmed,idIn):
+        #assume list comes in
+        stemmed_string = ""
+        for word in stemmed:
+            stemmed_string += word + ","
+        current = self.session.query(Status).filter(Status.id == idIn).all()[0]
+        current.status_stemmed = stemmed_string[:-1]
+        self.session.commit()
+
+    def update_no_common(self,no_common,idIn):
+        #assume list comes in
+        no_common_string = ""
+        for word in no_common:
+            no_common_string += word + ","
+        current = self.session.query(Status).filter(Status.id == idIn).all()[0]
+        current.status_no_common = no_common_string[:-1]
+        self.session.commit()
+
+    def get_ind(self,idIn):
+        current = self.session.query(Status).filter(Status.id == idIn).all()[0]
+        return (current.status_original, current.rank, current.status_stemmed)
 
     def gather_excel(self,file_name):
         sheet = open(file_name,'r')
@@ -41,16 +65,10 @@ class dbContainer:
         for i in self.session.query(Status).all():
             self.session.delete(i)
 
-    def clean(self,status):
-        tokenizer = RegexpTokenizer(r'\w+')
-        tokens = tokenizer.tokenize(status)  # return the tokens
-        print(tokens)
-
 
 
 test = dbContainer()
 
 #test.gather_excel("good.csv")
 
-#print(test.get_all())
-test.clean("@kwefgf going to cinda's sooonnnnnnn123")
+print(test.get_all())
