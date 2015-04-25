@@ -7,10 +7,11 @@ __author__ = 'Mariah and David'
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_declarative import Status, Base
-from nltk.tokenize import RegexpTokenizer
+from cleaner import cleaner
 
 class dbContainer:
     def __init__(self):
+        self.clean = cleaner()
         engine = create_engine('sqlite:///statuses.db')
         Base.metadata.bind = engine
 
@@ -27,10 +28,10 @@ class dbContainer:
 
     def get_all(self):
         all = self.session.query(Status).all()
-        statuses = {}
-        for aStatus in all:
-            statuses[aStatus.status_original] = aStatus.rank
-        return statuses
+        big = []
+        for aStat in all:
+            big.append([aStat.status_original,aStat.rank,aStat.status_stemmed,aStat.status_no_common])
+        return big
 
     def update_stemmed(self,stemmed,idIn):
         #assume list comes in
@@ -52,7 +53,7 @@ class dbContainer:
 
     def get_ind(self,idIn):
         current = self.session.query(Status).filter(Status.id == idIn).all()[0]
-        return (current.status_original, current.rank, current.status_stemmed)
+        return (current.status_original, current.rank, current.status_stemmed, current.status_no_common)
 
     def gather_excel(self,file_name):
         sheet = open(file_name,'r')
@@ -61,14 +62,11 @@ class dbContainer:
             status = i[:-1].split(",")
             self.insert_status(status[1],int(status[0]))
 
+    def fill_table(self):
+        for status in self.session.query(Status).all():
+            tokens = self.clean.tokenizeText(status.status_original)
+            self.update_stemmed(tokens,status.id)
+            self.update_no_common(self.clean.tokenizeText(self.clean.removeCommon(status.status_original)),status.id)
     def empty_db(self):
         for i in self.session.query(Status).all():
             self.session.delete(i)
-
-
-
-test = dbContainer()
-
-#test.gather_excel("good.csv")
-
-print(test.get_all())
