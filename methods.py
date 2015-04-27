@@ -20,7 +20,8 @@ class Methods:
     def rate_status(self,statusIn):
         status_clean = self.clean.tokenizeText(statusIn)
         self.naive_setup(2)
-        self.naive_bayes(status_clean)
+        scores = self.naive_bayes(status_clean)
+        print(scores)
 
     def naive_setup(self,type):
         self.naive_classes_prior = {'neutral':0,'positive':0,'negative':0}
@@ -71,6 +72,8 @@ class Methods:
                         count += 1
                 scores[aType] += math.log((count +1)/(self.naive_classes_count[aType]+self.unique))
 
-        print(scores)
+        return scores
 
 test = Methods()
+
+test.rate_status("going for a run with my friends")
