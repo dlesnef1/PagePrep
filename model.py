@@ -70,3 +70,4 @@ class dbContainer:
     def empty_db(self):
         for i in self.session.query(Status).all():
             self.session.delete(i)
+
