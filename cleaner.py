@@ -12,14 +12,8 @@ class cleaner:
             cachedStopWords = stopwords.words("english")
 
             text = ' '.join([word for word in text.split() if word.lower() not in cachedStopWords])
-            text=text.split(" ")
 
-            for word in text:
-                #if word.__contains__("@")==False:
-                newText+=(word+" ")
-
-            re.sub(r'[^\w]', ' ', newText)
-            return newText
+            return text
 
         def tokenizeText(self,text):
             tokenizer = RegexpTokenizer(r'\w+')

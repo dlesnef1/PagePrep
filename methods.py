@@ -6,11 +6,11 @@ __author__ = 'Mariah and David'
 
 from model import dbContainer
 from cleaner import cleaner
+
 class Methods:
 
     def __init__(self):
         self.clean = cleaner()
-
         self.db = dbContainer()
         self.all = self.db.get_all()
         # 0 - original, 1 - rank, 2 - stemmed, 3 - no common
@@ -35,5 +35,7 @@ class Methods:
                 print(status)
         print(self.naive_classes)
 
+
 test = Methods()
-test.rate_status("Fucking bitches, cannot fucking stand dumb sloots")
+
+#test.rate_status("Fucking bitches, cannot fucking stand dumb sloots")
