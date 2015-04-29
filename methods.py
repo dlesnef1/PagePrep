@@ -163,5 +163,8 @@ class Methods:
 
 
 
+<<<<<<< Updated upstream
 test = Methods()
 test.kNN_fillDict(2)
+=======
+>>>>>>> Stashed changes
