@@ -1,0 +1,20 @@
+positive;charity event tonight
+positive;race for the cure tomorrow
+positive;i love reading scholarly articles
+positive;volunteering is way more satisfying than partying
+neutral;happy birthday
+neutral;here are our adventures
+neutral;my iPhone 5C screen randomly popped out. Does anyone have any idea how to fix it?
+neutral;today is the day
+neutral;loved watching frozen with this boldly
+neutral;lets go manchester united
+negative;cannot fucking stand working on saturday nights
+negative;is it bad to hook up with my coworker
+negative;school is really the worst, god damnit
+negative;mother fucker, i wanted ice cream
+negative;my boss has a hot wife
+negative;i slept with my best friend, woops
+negative;work sucks, i know
+negative;why do the british get to say cunt but we dont
+negative;asshole driver infront of me, ill find you
+negative;my girlfriend is a whore, i kind of dig it

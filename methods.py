@@ -1,12 +1,9 @@
-#This class is where we will implement Naive Bayes, kNN, and our old method of marking
-#It will not do any of the "science", its purpose is to simply read from the DB and classify each status
-#into either the negative, positive, or neutral classes
-
 __author__ = 'Mariah and David'
 
 from model import dbContainer
 from cleaner import cleaner
 import math
+import operator
 
 class Methods:
     def __init__(self):
@@ -17,11 +14,11 @@ class Methods:
         # 0 - original, 1 - rank, 2 - stemmed, 3 - no common
         # don't forget they aren't lists, simply strings separated by commas
 
-    def rate_status(self,statusIn):
+    def rate_status(self,statusIn,testIn,badIn):
         status_clean = self.clean.tokenizeText(statusIn)
-        self.naive_setup(2)
-        scores = self.naive_bayes(status_clean)
-        print(scores)
+        self.naive_setup(testIn)
+        scores = self.naive_bayes(status_clean,badIn)
+        return self.rank_it(scores)
 
     def naive_setup(self,type):
         self.naive_classes_prior = {'neutral':0,'positive':0,'negative':0}
@@ -58,7 +55,7 @@ class Methods:
 
         self.unique = len(unique)
 
-    def naive_bayes(self,status):
+    def naive_bayes(self,status,bad_words):
         scores = {}
         scores['positive'] = math.log(self.naive_classes_prior['positive'])
         scores['neutral'] = math.log(self.naive_classes_prior['neutral'])
@@ -69,11 +66,25 @@ class Methods:
                 count = 0
                 for i in self.naive_classes_words[aType]:
                     if word_status == i:
-                        count += 1
-                scores[aType] += math.log((count +1)/(self.naive_classes_count[aType]+self.unique))
+                        if bad_words != []:
+                            if word_status in bad_words:
+                                count += 10
+                            else:
+                                count += 1
+                        else:
+                            count += 1
+                scores[aType] += math.log((count + 1)/(self.naive_classes_count[aType]+self.unique))
 
         return scores
 
+    def rank_it(self,scores):
+        sorted_S = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)
+
+        if (math.fabs(sorted_S[0][1])+1) < math.fabs(sorted_S[1][1]) :
+            return (sorted_S[0][0])
+        else:
+            return ('neutral')
+
 test = Methods()
 
-test.rate_status("going for a run with my friends")
+test.rate_status("i want to kill myself, middle school is so rough",2,[''])
