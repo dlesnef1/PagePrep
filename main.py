@@ -1,4 +1,3 @@
-from cleaner import cleaner
 from methods import Methods
 
 class testing:
@@ -43,5 +42,4 @@ class testing:
             toReturn.append(i[:-1])
         return toReturn
 
-tester = testing()
 

@@ -84,7 +84,3 @@ class Methods:
             return (sorted_S[0][0])
         else:
             return ('neutral')
-
-test = Methods()
-
-test.rate_status("i want to kill myself, middle school is so rough",2,[''])
