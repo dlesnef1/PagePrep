@@ -8,7 +8,11 @@ import operator
 class Methods:
     def __init__(self):
         self.clean = cleaner()
-
+        self.allWords={}
+        self.tfDictTrain={}
+        self.tfDictNew={}
+        self.sharedTermsDict={}
+        self.simDict={}
         self.db = dbContainer()
         self.all = self.db.get_all()
         # 0 - original, 1 - rank, 2 - stemmed, 3 - no common
@@ -84,3 +88,124 @@ class Methods:
             return (sorted_S[0][0])
         else:
             return ('neutral')
+
+        #start kNN implementation
+    def kNN_fillDict(self,type):
+        #for each term in the docs add the index it occurs to the dictionary
+        for i in range(len(self.all)):
+            status=self.all[i][type].split(",")
+            for j in range(len(status)):
+                term=status[j]
+                if term not in self.allWords:
+
+                    self.allWords[term]={i: [j]}
+
+                elif i not in self.allWords[term]:
+                    self.allWords[term][i]=[j]
+                else:
+                    self.allWords[term][i].append(j)
+        print(self.allWords)
+        self.kNN_getTrainedTermFreq()
+
+    def kNN_getTrainedTermFreq(self):
+        #get weighted term frequencies of each term per doc
+        for term in self.allWords:
+            for id in self.allWords[term]:
+                termFreq=len(self.allWords[term][id])*math.log10(len(self.all)/len(self.allWords[term]))
+                if term not in self.tfDictTrain:
+                    self.tfDictTrain[term] = {id: termFreq}
+                elif id not in self.tfDictTrain[term]:
+                    self.tfDictTrain[term][id]=termFreq
+
+        print(self.tfDictTrain)
+
+    def kNN_getNewTermFreq(self,newDoc):
+        #get term frequencies for the new text you are trying to classify
+        newDoc_clean=self.clean.removeCommon(newDoc)
+        newDoc_clean=self.clean.tokenizeText(newDoc_clean)
+        for term in newDoc_clean:
+            if term not in self.tfDictNew:
+                self.tfDictNew[term]=1
+            else:
+                self.tfDictNew[term]+=1
+
+        for term in self.allWords:
+            if term in self.tfDictNew:
+                self.tfDictNew[term]=self.tfDictNew[term]*math.log10(len(self.all)/len(self.allWords[term]))
+
+        return newDoc_clean
+
+    def kNN_getCommonTerms(self,queryDoc):
+        #find what trained docs have common terms with new doc
+        #make note of docs id and the common terms
+        newDoc = self.kNN_getNewTermFreq(queryDoc)
+
+        for term in self.allWords:
+            if term in newDoc:
+                for id in self.allWords[term]:
+                    if id not in self.sharedTermsDict:
+                        self.sharedTermsDict[id]=[term]
+                    else:
+                        self.sharedTermsDict[id].append(term)
+        self.kNN_calculateSim()
+
+    def kNN_calculateSim(self):
+        newTerms=0
+        trainTerms=0
+
+        for id in self.sharedTermsDict:
+            for term in self.sharedTermsDict[id]:
+                if id not in self.simDict:
+                    self.simDict[id]=self.tfDictNew[term]*self.tfDictTrain[term][id]
+                else:
+                    self.simDict[id]+=self.tfDictNew[term]*self.tfDictTrain[term][id]
+
+                newTerms+=self.tfDictNew[term]*self.tfDictNew[term]
+                trainTerms+=self.tfDictTrain[term][id]*self.tfDictTrain[term][id]
+            newTerms=math.sqrt(newTerms)
+            trainTerms=math.sqrt(trainTerms)
+        for id in self.simDict:
+            self.simDict[id]=self.simDict[id]/(newTerms*trainTerms)
+
+        print("SIMILARITIES: ")
+        print(self.simDict)
+        self.kNN_getClass()
+
+
+
+    def kNN_getClass(self):
+        sortedSims = sorted(self.simDict.items(), key=operator.itemgetter(1),reverse=True)
+        cDocsSum=[0,0,0]
+        kDocsSum=[0,0,0]
+        k=7
+        for i in sortedSims:
+            if self.all[i[0]][1]<0:
+                cDocsSum[0]+=i[1]
+            if self.all[i[0]][1]>0:
+                cDocsSum[1]+=i[1]
+            if self.all[i[0]][1]==0:
+                cDocsSum[2]+=i[1]
+
+        for i in sortedSims[0:k-1]:
+            if self.all[i[0]][1]<0:
+                kDocsSum[0]+=i[1]
+            if self.all[i[0]][1]>0:
+               kDocsSum[1]+=i[1]
+            if self.all[i[0]][1]==0:
+                kDocsSum[2]+=i[1]
+
+        for i in range(0,3):
+             if kDocsSum[i]==0:
+                 cDocsSum[i]=0
+             else:
+                 cDocsSum[i]=cDocsSum[i]/kDocsSum[i]
+
+        finalClass=max(cDocsSum)
+        if finalClass==cDocsSum[0]:
+             print("unprofessional")
+        elif finalClass==cDocsSum[1]:
+             print("professional")
+        elif finalClass==cDocsSum[2]:
+            print("neutral")
+        print(finalClass)
+
