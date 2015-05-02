@@ -89,13 +89,13 @@ class Methods:
         else:
             return ('neutral')
 
-        #start kNN implementation
+    #start kNN implementation
     def kNN_fillDict(self,type):
         #for each term in the docs add the index it occurs to the dictionary
         for i in range(len(self.all)):
             status=self.all[i][type].split(",")
             for j in range(len(status)):
-                term=status[j]
+                term = status[j]
                 if term not in self.allWords:
 
                     self.allWords[term]={i: [j]}
@@ -104,7 +104,6 @@ class Methods:
                     self.allWords[term][i]=[j]
                 else:
                     self.allWords[term][i].append(j)
-        print(self.allWords)
         self.kNN_getTrainedTermFreq()
 
     def kNN_getTrainedTermFreq(self):
@@ -116,8 +115,6 @@ class Methods:
                     self.tfDictTrain[term] = {id: termFreq}
                 elif id not in self.tfDictTrain[term]:
                     self.tfDictTrain[term][id]=termFreq
-
-        print(self.tfDictTrain)
 
     def kNN_getNewTermFreq(self,newDoc):
         #get term frequencies for the new text you are trying to classify
@@ -135,7 +132,7 @@ class Methods:
 
         return newDoc_clean
 
-    def kNN_getCommonTerms(self,queryDoc):
+    def kNN_getCommonTerms(self,queryDoc,badWords):
         #find what trained docs have common terms with new doc
         #make note of docs id and the common terms
         newDoc = self.kNN_getNewTermFreq(queryDoc)
@@ -147,11 +144,13 @@ class Methods:
                         self.sharedTermsDict[id]=[term]
                     else:
                         self.sharedTermsDict[id].append(term)
-        self.kNN_calculateSim()
+        self.kNN_calculateSim(badWords)
 
-    def kNN_calculateSim(self):
+    def kNN_calculateSim(self,badWords):
         newTerms=0
         trainTerms=0
+        fixSimScores=False
+        badWords=self.clean.tokenizeText(badWords)
 
         for id in self.sharedTermsDict:
             for term in self.sharedTermsDict[id]:
@@ -160,24 +159,27 @@ class Methods:
                 else:
                     self.simDict[id]+=self.tfDictNew[term]*self.tfDictTrain[term][id]
 
+                if term in badWords:
+                        self.simDict[id] -= 2
+
+        for term in self.tfDictNew:
                 newTerms+=self.tfDictNew[term]*self.tfDictNew[term]
+        for term in self.tfDictTrain:
+            for id in self.tfDictTrain[term]:
                 trainTerms+=self.tfDictTrain[term][id]*self.tfDictTrain[term][id]
-            newTerms=math.sqrt(newTerms)
-            trainTerms=math.sqrt(trainTerms)
+        newTerms=math.sqrt(newTerms)
+        trainTerms=math.sqrt(trainTerms)
         for id in self.simDict:
             self.simDict[id]=self.simDict[id]/(newTerms*trainTerms)
 
-        print("SIMILARITIES: ")
-        print(self.simDict)
-        self.kNN_getClass()
 
-
-
-    def kNN_getClass(self):
+    def kNN_getClass(self,newDoc,type,badWords):
+        self.kNN_fillDict(type)
+        self.kNN_getCommonTerms(newDoc,badWords)
         sortedSims = sorted(self.simDict.items(), key=operator.itemgetter(1),reverse=True)
         cDocsSum=[0,0,0]
         kDocsSum=[0,0,0]
-        k=7
+        k=5
         for i in sortedSims:
             if self.all[i[0]][1]<0:
                 cDocsSum[0]+=i[1]
@@ -202,10 +204,11 @@ class Methods:
 
         finalClass=max(cDocsSum)
         if finalClass==cDocsSum[0]:
-             print("unprofessional")
+             return("negative")
         elif finalClass==cDocsSum[1]:
-             print("professional")
+             return("positive")
         elif finalClass==cDocsSum[2]:
-            print("neutral")
-        print(finalClass)
+            return("neutral")
+
+
 
