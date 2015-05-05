@@ -1,10 +1,10 @@
 from methods import Methods
 
 
-class testing:
+class experiment:
     def __init__(self):
         self.method = Methods()
-        self.test()
+
 
     def testNB(self):
         badWords = ['fuck','damn','work','cunt','bitch','whore','asshole']
@@ -28,7 +28,6 @@ class testing:
         scores = [0,0,0,0]
         scoresn =[0,0,0,0]
         for i in range(len(lines)):
-            print("k")
             rate = lines[i].split(";")[0]
             if rate == 'negative':
                 if rate == results_NB[i]:
@@ -76,6 +75,10 @@ class testing:
             results_KNN_noC_bad.append(self.method.kNN_getClass(status,3,badWords))
 
 
+        print (results_KNN)
+        print (results_KNN_noC)
+        print (results_KNN_bad)
+        print (results_KNN_noC_bad)
 
         scores = [0,0,0,0]
         scoresn =[0,0,0,0]
@@ -104,5 +107,6 @@ class testing:
         print(scoresn)
 
 
-test1=testing()
+test1=experiment()
+#test1.testNB()
 test1.testKNN()
