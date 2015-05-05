@@ -108,5 +108,5 @@ class experiment:
 
 
 test1=experiment()
-#test1.testNB()
+test1.testNB()
 test1.testKNN()

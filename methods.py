@@ -97,7 +97,6 @@ class Methods:
             for j in range(len(status)):
                 term = status[j]
                 if term not in self.allWords:
-
                     self.allWords[term]={i: [j]}
 
                 elif i not in self.allWords[term]:
@@ -110,7 +109,7 @@ class Methods:
         #get weighted term frequencies of each term per doc
         for term in self.allWords:
             for id in self.allWords[term]:
-                termFreq=len(self.allWords[term][id])*math.log10(len(self.all)/len(self.allWords[term]))
+                termFreq=(1+math.log10(len(self.allWords[term][id])))*(math.log10(len(self.all)/len(self.allWords[term].keys())))
                 if term not in self.tfDictTrain:
                     self.tfDictTrain[term] = {id: termFreq}
                 elif id not in self.tfDictTrain[term]:
@@ -128,7 +127,7 @@ class Methods:
 
         for term in self.allWords:
             if term in self.tfDictNew:
-                self.tfDictNew[term]=self.tfDictNew[term]*math.log10(len(self.all)/len(self.allWords[term]))
+                self.tfDictNew[term]=1+math.log10(self.tfDictNew[term])*(math.log10(len(self.all)/len(self.allWords[term].keys())))
 
         return newDoc_clean
 
@@ -160,7 +159,7 @@ class Methods:
                     self.simDict[id]+=self.tfDictNew[term]*self.tfDictTrain[term][id]
 
                 if term in badWords:
-                        self.simDict[id] -= 2
+                        self.simDict[id] += 2
 
         for term in self.tfDictNew:
                 newTerms+=self.tfDictNew[term]*self.tfDictNew[term]
