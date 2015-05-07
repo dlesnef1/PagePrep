@@ -148,7 +148,6 @@ class Methods:
     def kNN_calculateSim(self,badWords):
         newTerms=0
         trainTerms=0
-        fixSimScores=False
         badWords=self.clean.tokenizeText(badWords)
 
         for id in self.sharedTermsDict:
@@ -177,37 +176,39 @@ class Methods:
         self.kNN_getCommonTerms(newDoc,badWords)
         sortedSims = sorted(self.simDict.items(), key=operator.itemgetter(1),reverse=True)
         cDocsSum=[0,0,0]
-        kDocsSum=[0,0,0]
+        kDocsSum=0
         k=5
-        for i in sortedSims:
+        for i in sortedSims[0:k-1]:
             if self.all[i[0]][1]<0:
                 cDocsSum[0]+=i[1]
             if self.all[i[0]][1]>0:
-                cDocsSum[1]+=i[1]
+               cDocsSum[1]+=i[1]
             if self.all[i[0]][1]==0:
                 cDocsSum[2]+=i[1]
 
+
         for i in sortedSims[0:k-1]:
-            if self.all[i[0]][1]<0:
-                kDocsSum[0]+=i[1]
-            if self.all[i[0]][1]>0:
-               kDocsSum[1]+=i[1]
-            if self.all[i[0]][1]==0:
-                kDocsSum[2]+=i[1]
+            kDocsSum+=i[1]
+
+
 
         for i in range(0,3):
-             if kDocsSum[i]==0:
+             if kDocsSum==0:
                  cDocsSum[i]=0
              else:
-                 cDocsSum[i]=cDocsSum[i]/kDocsSum[i]
+                 cDocsSum[i]=cDocsSum[i]/kDocsSum
 
         finalClass=max(cDocsSum)
+
         if finalClass==cDocsSum[0]:
              return("negative")
         elif finalClass==cDocsSum[1]:
              return("positive")
         elif finalClass==cDocsSum[2]:
             return("neutral")
+
+
+
 
 
 
