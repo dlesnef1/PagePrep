@@ -75,11 +75,6 @@ class experiment:
             results_KNN_noC_bad.append(self.method.kNN_getClass(status,3,badWords))
 
 
-        print (results_KNN)
-        print (results_KNN_noC)
-        print (results_KNN_bad)
-        print (results_KNN_noC_bad)
-
         scores = [0,0,0,0]
         scoresn =[0,0,0,0]
         for i in range(len(lines)):
